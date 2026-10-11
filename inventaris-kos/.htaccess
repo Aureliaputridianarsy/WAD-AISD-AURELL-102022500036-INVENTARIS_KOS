@@ -1,0 +1,5 @@
+# Pastikan server mendahulukan index.php dibanding index.html
+DirectoryIndex index.php index.html
+
+# Mencegah listing direktori
+Options -Indexes
