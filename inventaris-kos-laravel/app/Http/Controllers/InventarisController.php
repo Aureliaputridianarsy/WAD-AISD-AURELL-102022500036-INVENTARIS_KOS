@@ -4,15 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Inventaris;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class InventarisController extends Controller
 {
     /**
      * READ - Menampilkan semua data inventaris.
+     * Dapat diakses oleh Admin, Staff, dan Penyewa.
      * Route: GET /inventaris
      */
     public function index()
     {
+        Gate::authorize('viewAny', Inventaris::class);
+
         $inventaris = Inventaris::latest()->get();
         $totalData  = $inventaris->count();
 
@@ -21,10 +25,13 @@ class InventarisController extends Controller
 
     /**
      * CREATE (form) - Menampilkan form tambah aset baru.
+     * Hanya Admin dan Staff.
      * Route: GET /inventaris/create
      */
     public function create()
     {
+        Gate::authorize('create', Inventaris::class);
+
         return view('inventaris.form', [
             'mode'  => 'create',
             'aset'  => null,
@@ -33,10 +40,13 @@ class InventarisController extends Controller
 
     /**
      * CREATE (simpan) - Menyimpan data aset baru ke database.
+     * Hanya Admin dan Staff.
      * Route: POST /inventaris
      */
     public function store(Request $request)
     {
+        Gate::authorize('create', Inventaris::class);
+
         $validated = $request->validate([
             'nama_aset'  => 'required|string|max:100',
             'kategori'   => 'required|string|max:50',
@@ -61,10 +71,13 @@ class InventarisController extends Controller
 
     /**
      * UPDATE (form) - Menampilkan form edit aset berdasarkan ID.
+     * Hanya Admin dan Staff.
      * Route: GET /inventaris/{inventaris}/edit
      */
     public function edit(Inventaris $inventaris)
     {
+        Gate::authorize('update', $inventaris);
+
         return view('inventaris.form', [
             'mode' => 'edit',
             'aset' => $inventaris,
@@ -73,10 +86,13 @@ class InventarisController extends Controller
 
     /**
      * UPDATE (simpan) - Memperbarui data aset di database.
+     * Hanya Admin dan Staff.
      * Route: PUT /inventaris/{inventaris}
      */
     public function update(Request $request, Inventaris $inventaris)
     {
+        Gate::authorize('update', $inventaris);
+
         $validated = $request->validate([
             'nama_aset'  => 'required|string|max:100',
             'kategori'   => 'required|string|max:50',
@@ -101,10 +117,13 @@ class InventarisController extends Controller
 
     /**
      * DELETE - Menghapus data aset dari database.
+     * HANYA BISA DILAKUKAN OLEH ADMIN.
      * Route: DELETE /inventaris/{inventaris}
      */
     public function destroy(Inventaris $inventaris)
     {
+        Gate::authorize('delete', $inventaris);
+
         $namaAset = $inventaris->nama_aset;
         $inventaris->delete();
 

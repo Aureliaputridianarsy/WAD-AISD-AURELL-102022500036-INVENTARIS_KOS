@@ -313,11 +313,13 @@
             <span>Data Inventaris</span>
         </a>
 
+        @can('create', App\Models\Inventaris::class)
         <a href="{{ route('inventaris.create') }}"
            class="nav-link {{ request()->routeIs('inventaris.create') ? 'active' : '' }}">
             <i class="bi bi-plus-circle-fill"></i>
             <span>Tambah Aset Baru</span>
         </a>
+        @endcan
 
         <div class="nav-label" style="margin-top: 20px;">Informasi</div>
 
@@ -348,8 +350,31 @@
             <span class="current">@yield('breadcrumb', 'Dashboard')</span>
         </div>
         <div class="navbar-user">
-            <div class="avatar">IK</div>
-            <span class="user-name">Admin Kos</span>
+            @auth
+                <div class="avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+                <div class="d-flex flex-column text-start">
+                    <span class="user-name">{{ auth()->user()->name }}</span>
+                    <div>
+                        @if(auth()->user()->isAdmin())
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-0" style="font-size: 0.7rem;">Admin</span>
+                        @elseif(auth()->user()->isStaff())
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0" style="font-size: 0.7rem;">Staff</span>
+                        @else
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0" style="font-size: 0.7rem;">Penyewa</span>
+                        @endif
+                    </div>
+                </div>
+                <form action="{{ route('logout') }}" method="POST" class="d-inline ms-2">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" title="Keluar dari sistem" style="border-radius: 8px; font-size: 0.8rem;">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-primary btn-sm" style="border-radius: 8px;">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                </a>
+            @endauth
         </div>
     </header>
 

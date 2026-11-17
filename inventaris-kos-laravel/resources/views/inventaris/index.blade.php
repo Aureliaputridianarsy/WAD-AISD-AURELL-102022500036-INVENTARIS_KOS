@@ -204,9 +204,11 @@
             <span class="badge bg-light text-dark border px-3 py-2">
                 Tampil: <strong id="visibleCount" class="text-primary">{{ $totalData }}</strong> aset
             </span>
+            @can('create', App\Models\Inventaris::class)
             <a href="{{ route('inventaris.create') }}" class="btn btn-primary btn-sm px-3" id="btn-tambah-aset">
                 <i class="bi bi-plus-circle me-1"></i>+ Tambah Aset
             </a>
+            @endcan
         </div>
     </div>
 
@@ -263,21 +265,34 @@
                             {{ $aset->keterangan ?: '-' }}
                         </td>
                         <td class="text-center pe-4">
-                            {{-- Tombol Edit --}}
-                            <a href="{{ route('inventaris.edit', $aset->id) }}"
-                               class="btn btn-warning btn-sm action-btn text-dark me-1"
-                               id="btn-edit-{{ $aset->id }}"
-                               title="Edit Aset">
-                                <i class="bi bi-pencil-square me-1"></i>Edit
-                            </a>
-                            {{-- Tombol Hapus - Trigger Modal --}}
-                            <button
-                                class="btn btn-danger btn-sm action-btn"
-                                id="btn-hapus-{{ $aset->id }}"
-                                onclick="confirmHapus({{ $aset->id }}, '{{ addslashes($aset->nama_aset) }}')"
-                                title="Hapus Aset">
-                                <i class="bi bi-trash3 me-1"></i>Hapus
-                            </button>
+                            @can('update', $aset)
+                                {{-- Tombol Edit --}}
+                                <a href="{{ route('inventaris.edit', $aset->id) }}"
+                                   class="btn btn-warning btn-sm action-btn text-dark me-1"
+                                   id="btn-edit-{{ $aset->id }}"
+                                   title="Edit Aset">
+                                    <i class="bi bi-pencil-square me-1"></i>Edit
+                                </a>
+                            @endcan
+
+                            @can('delete', $aset)
+                                {{-- Tombol Hapus - Trigger Modal --}}
+                                <button
+                                    class="btn btn-danger btn-sm action-btn"
+                                    id="btn-hapus-{{ $aset->id }}"
+                                    onclick="confirmHapus({{ $aset->id }}, '{{ addslashes($aset->nama_aset) }}')"
+                                    title="Hapus Aset">
+                                    <i class="bi bi-trash3 me-1"></i>Hapus
+                                </button>
+                            @endcan
+
+                            @cannot('update', $aset)
+                                @cannot('delete', $aset)
+                                    <span class="badge bg-light text-muted border px-2 py-1" style="font-size: 0.75rem;">
+                                        <i class="bi bi-eye me-1"></i>Hanya Lihat
+                                    </span>
+                                @endcannot
+                            @endcannot
                         </td>
                     </tr>
                 @empty
@@ -287,9 +302,11 @@
                                 <i class="bi bi-inbox"></i>
                                 <p class="fw-semibold mb-1">Belum ada data aset.</p>
                                 <p class="small">Database kosong. Mulai tambahkan aset pertama Anda!</p>
+                                @can('create', App\Models\Inventaris::class)
                                 <a href="{{ route('inventaris.create') }}" class="btn btn-primary btn-sm px-4 mt-2">
                                     <i class="bi bi-plus-circle me-1"></i>Tambah Aset Sekarang
                                 </a>
+                                @endcan
                             </div>
                         </td>
                     </tr>
