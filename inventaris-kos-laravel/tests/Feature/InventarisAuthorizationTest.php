@@ -60,6 +60,89 @@ class InventarisAuthorizationTest extends TestCase
     }
 
     /**
+     * Halaman register dapat diakses dengan baik oleh tamu.
+     */
+    public function test_register_page_renders_successfully(): void
+    {
+        $response = $this->get('/register');
+
+        $response->assertStatus(200);
+        $response->assertSee('Daftar Akun Baru');
+    }
+
+    /**
+     * Pengguna baru dapat mendaftar sebagai Penyewa dan langsung login.
+     */
+    public function test_user_can_register_as_penyewa_and_is_redirected(): void
+    {
+        $response = $this->post('/register', [
+            'name'                  => 'Budi Santoso',
+            'email'                 => 'budi@gmail.com',
+            'role'                  => 'penyewa',
+            'password'              => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect('/inventaris');
+        $this->assertDatabaseHas('users', [
+            'email' => 'budi@gmail.com',
+            'role'  => 'penyewa',
+        ]);
+        $this->assertAuthenticated();
+    }
+
+    /**
+     * Pengguna baru dapat mendaftar sebagai Staff.
+     */
+    public function test_user_can_register_as_staff_and_is_redirected(): void
+    {
+        $response = $this->post('/register', [
+            'name'                  => 'Siti Staff',
+            'email'                 => 'siti@gmail.com',
+            'role'                  => 'staff',
+            'password'              => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect('/inventaris');
+        $this->assertDatabaseHas('users', [
+            'email' => 'siti@gmail.com',
+            'role'  => 'staff',
+        ]);
+    }
+
+    /**
+     * Pendaftaran gagal jika konfirmasi password tidak cocok.
+     */
+    public function test_registration_fails_if_password_confirmation_does_not_match(): void
+    {
+        $response = $this->post('/register', [
+            'name'                  => 'Budi Salah',
+            'email'                 => 'budisalah@gmail.com',
+            'password'              => 'secret123',
+            'password_confirmation' => 'differentpassword',
+        ]);
+
+        $response->assertSessionHasErrors('password');
+        $this->assertGuest();
+    }
+
+    /**
+     * Pendaftaran gagal jika email sudah terdaftar.
+     */
+    public function test_registration_fails_if_email_already_registered(): void
+    {
+        $response = $this->post('/register', [
+            'name'                  => 'Duplikat Admin',
+            'email'                 => 'admin@kos.com',
+            'password'              => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+    }
+
+    /**
      * Pengguna dapat login dengan email dan password yang valid.
      */
     public function test_user_can_login_with_valid_credentials(): void

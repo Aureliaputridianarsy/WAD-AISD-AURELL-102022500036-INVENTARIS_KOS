@@ -208,9 +208,16 @@
                 <span class="text-muted small">Default pass: <code>password</code></span>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 mb-4 shadow-sm">
+            <button type="submit" class="btn btn-primary w-100 mb-3 shadow-sm">
                 <i class="bi bi-box-arrow-in-right me-1"></i> Masuk Sekarang
             </button>
+
+            <div class="text-center mb-4">
+                <span class="text-muted small">Belum punya akun?</span>
+                <a href="{{ route('register') }}" class="text-primary small fw-semibold text-decoration-none ms-1">
+                    Daftar di sini <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
         </form>
 
         {{-- Bantuan Cepat Pengujian Hak Akses --}}

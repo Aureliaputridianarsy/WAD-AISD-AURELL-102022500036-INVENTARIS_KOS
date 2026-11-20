@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,6 +48,53 @@ class AuthController extends Controller
             ->withErrors([
                 'email' => 'Email atau password yang Anda masukkan tidak sesuai.',
             ]);
+    }
+
+    /**
+     * Menampilkan form pendaftaran (register) pengguna baru.
+     */
+    public function showRegisterForm()
+    {
+        if (Auth::check()) {
+            return redirect()->route('inventaris.index');
+        }
+
+        return view('auth.register');
+    }
+
+    /**
+     * Memproses pendaftaran pengguna baru.
+     */
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'role'     => ['nullable', 'in:penyewa,staff'],
+        ], [
+            'name.required'      => 'Nama lengkap wajib diisi.',
+            'email.required'     => 'Alamat email wajib diisi.',
+            'email.email'        => 'Format email tidak valid.',
+            'email.unique'       => 'Alamat email sudah terdaftar di sistem.',
+            'password.required'  => 'Password wajib diisi.',
+            'password.min'       => 'Password minimal terdiri dari 6 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'role.in'            => 'Pilihan peran tidak valid.',
+        ]);
+
+        $user = User::create([
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => $validated['password'],
+            'role'     => $validated['role'] ?? 'penyewa',
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('inventaris.index')
+            ->with('flash_success', 'Pendaftaran akun berhasil! Selamat datang, ' . $user->name . ' (' . $user->role_label . ')!');
     }
 
     /**
